@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -23,7 +24,7 @@ func SessionInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
-	sess, err := livetiming.Info(year, round)
+	sess, err := livetiming.GetSession(year, round)
 	if err != nil {
 		if _, wErr := w.Write([]byte(err.Error())); wErr != nil {
 			log.Println(wErr)
@@ -59,4 +60,34 @@ func parseSessionInfo(values map[string]string) (int64, int64, error) {
 	}
 
 	return year, round, nil
+}
+
+func SessionRaw(w http.ResponseWriter, r *http.Request) {
+	vals := mux.Vars(r)
+
+	year, round, err := parseSessionInfo(vals)
+	if err != nil {
+		if _, wErr := w.Write([]byte(err.Error())); wErr != nil {
+			log.Println(wErr)
+		}
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	sess, err := livetiming.GetSession(year, round)
+	if err != nil {
+		if _, wErr := w.Write([]byte(err.Error())); wErr != nil {
+			log.Println(wErr)
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	dataR, err := livetiming.GetData(r.Context(), sess)
+	if err != nil {
+		if _, wErr := w.Write([]byte(err.Error())); wErr != nil {
+			log.Println(wErr)
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	defer dataR.Close()
+	io.Copy(w, dataR)
 }

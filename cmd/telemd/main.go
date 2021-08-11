@@ -28,7 +28,7 @@ func main() {
 		Addr:         *addr,
 		Handler:      r,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		WriteTimeout: 30 * time.Second,
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
@@ -41,8 +41,9 @@ func router() *mux.Router {
 
 	r.HandleFunc("/ping", handlers.Health)
 
-	s := r.PathPrefix("/livetiming/{year}/{round}").Subrouter()
+	s := r.PathPrefix("/telemetry/{year}/{round}").Subrouter()
 	s.HandleFunc("/info", handlers.SessionInfo)
+	s.HandleFunc("/raw", handlers.SessionRaw)
 
 	return r
 }
