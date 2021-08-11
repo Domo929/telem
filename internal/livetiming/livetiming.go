@@ -2,8 +2,6 @@ package livetiming
 
 import (
 	"encoding/json"
-	"errors"
-	"log"
 	"os"
 	"sync"
 )
@@ -22,12 +20,7 @@ func Init() error {
 		if err != nil {
 			return
 		}
-		defer func(f *os.File) {
-			err := f.Close()
-			if err != nil {
-				log.Println("issue closing paths.json file: ", err)
-			}
-		}(f)
+		defer f.Close()
 
 		sessSlice := make([]Session, 0)
 		if err = json.NewDecoder(f).Decode(&sessSlice); err != nil {
@@ -43,19 +36,4 @@ func Init() error {
 	})
 
 	return err
-}
-
-func Info(year, round int64) (*Session, error) {
-	var (
-		sess Session
-		ok   bool
-	)
-	if _, ok = sessions[year]; !ok {
-		return nil, errors.New("year is not within a valid range")
-	}
-	if sess, ok = sessions[year][round]; !ok {
-		return nil, errors.New("round is not within a valid range for that year")
-	}
-
-	return &sess, nil
 }

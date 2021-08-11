@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/Domo929/telem.git/internal/livetiming"
 
 	"github.com/Domo929/telem.git/internal/handlers"
-	"github.com/Domo929/telem.git/internal/livetiming"
-	"github.com/Domo929/telem.git/internal/telemetry"
+
+	"github.com/gorilla/mux"
 )
 
 var addr = flag.String("addr", "0.0.0.0:8080", "the local address of the daemon")
@@ -40,9 +40,6 @@ func router() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ping", handlers.Health)
-
-	s := r.PathPrefix("/session/{year}/{round}").Subrouter()
-	s.HandleFunc("/info", telemetry.SessionInfo)
 
 	return r
 }
