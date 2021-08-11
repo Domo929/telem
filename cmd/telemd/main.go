@@ -41,5 +41,8 @@ func router() *mux.Router {
 
 	r.HandleFunc("/ping", handlers.Health)
 
+	s := r.PathPrefix("/livetiming/{year}/{round}").Subrouter()
+	s.HandleFunc("/info", handlers.SessionInfo)
+
 	return r
 }
