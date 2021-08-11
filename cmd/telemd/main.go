@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Domo929/telem.git/internal/livetiming"
+
 	"github.com/Domo929/telem.git/internal/handlers"
 
 	"github.com/gorilla/mux"
@@ -15,6 +17,10 @@ var addr = flag.String("addr", "0.0.0.0:8080", "the local address of the daemon"
 
 func main() {
 	flag.Parse()
+
+	if err := livetiming.Init(); err != nil {
+		log.Fatalln("error starting live timing :", err)
+	}
 
 	r := router()
 
