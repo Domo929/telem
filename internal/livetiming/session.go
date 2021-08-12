@@ -3,6 +3,7 @@ package livetiming
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -16,6 +17,10 @@ type Session struct {
 	Name   string
 	Date   time.Time
 	Path   string
+}
+
+func (s *Session) String() string {
+	return fmt.Sprintf("%d_%d_%s", s.Season, s.Round, s.Name)
 }
 
 func (s *Session) UnmarshalJSON(b []byte) error {
