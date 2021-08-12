@@ -1,0 +1,14 @@
+# Gets the info of requested race
+GET {{host}}/telemetry/{{year}}/{{round}}/info
+
+###
+
+# Gets the raw data from livetiming.formula1.com
+GET {{host}}/telemetry/{{year}}/{{round}}/raw
+
+###
+
+# Gets the formatted/aggregated data from this API
+GET {{host}}/telemetry/{{year}}/{{round}}/
+
+###
