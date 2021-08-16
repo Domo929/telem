@@ -16,6 +16,7 @@ var (
 	Current Cache
 )
 
+// SetCache sets the cache that will be used by the Telemetry package
 func SetCache(c Cache) {
 	Current = c
 }

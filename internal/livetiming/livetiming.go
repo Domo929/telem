@@ -21,6 +21,7 @@ var (
 	client = http.Client{Timeout: 10 * time.Second}
 )
 
+// Init loads the paths.json file for reference later
 func Init() error {
 	var err error
 
@@ -53,6 +54,7 @@ func Init() error {
 	return err
 }
 
+// GetSession loads the session for the given year and round
 func GetSession(year, round int64) (*Session, error) {
 	var (
 		sess Session
@@ -68,6 +70,7 @@ func GetSession(year, round int64) (*Session, error) {
 	return &sess, nil
 }
 
+// GetData returns a reader for the raw jsonStream data provided by the Formula1 API
 func GetData(ctx context.Context, sess *Session) (io.ReadCloser, error) {
 	url := fmt.Sprintf("https://livetiming.formula1.com%sTimingData.jsonStream", sess.Path)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)

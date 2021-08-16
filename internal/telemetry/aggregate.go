@@ -15,6 +15,7 @@ func aggregate(laps []lap.Lap) ([]lap.Lap, error) {
 	for lapNdx, rawLap := range laps {
 		for driverNum, lapReport := range rawLap.Drivers {
 			driverLap := lapCount[driverNum]
+
 			if aggregatedLaps[driverLap].Drivers == nil {
 				aggregatedLaps[driverLap].Drivers = make(map[string]lap.Report)
 			}
@@ -37,8 +38,8 @@ func aggregate(laps []lap.Lap) ([]lap.Lap, error) {
 	}
 
 	// remove the trailing entries that are not valid laps
-	for i, lap := range aggregatedLaps {
-		if len(lap.Drivers) == 0 {
+	for i, l := range aggregatedLaps {
+		if len(l.Drivers) == 0 {
 			aggregatedLaps = aggregatedLaps[:i]
 			break
 		}

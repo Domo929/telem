@@ -62,6 +62,7 @@ func parseSessionInfo(values map[string]string) (int64, int64, error) {
 	return year, round, nil
 }
 
+// SessionRaw returns the raw data from the Formula1 API for a session. Used for comparison to aggregated data
 func SessionRaw(w http.ResponseWriter, r *http.Request) {
 	vals := mux.Vars(r)
 

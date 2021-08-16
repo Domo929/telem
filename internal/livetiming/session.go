@@ -12,6 +12,7 @@ import (
 // Sessions contains all possible sessions in a two-depth map. The map is map[year]map[round]Session
 type Sessions map[int64]map[int64]Session
 
+// Session contains all the information for a session
 type Session struct {
 	Season int64
 	Round  int64
@@ -20,11 +21,13 @@ type Session struct {
 	Path   string
 }
 
+// String returns the unique identifier for the Session
 func (s *Session) String() string {
 	name := strings.ReplaceAll(s.Name, " ", "_")
 	return fmt.Sprintf("%d_%d_%s", s.Season, s.Round, name)
 }
 
+// UnmarshalJSON is the overload function to handle the unique format of the json stream
 func (s *Session) UnmarshalJSON(b []byte) error {
 	var (
 		rawStr string
