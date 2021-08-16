@@ -1,13 +1,13 @@
-package telemetry
+package lap
 
 import (
 	"fmt"
 )
 
-// Lap contains the map of driver num to LapReport, this is the root struct that unmarshalls all but the first line
+// Lap contains the map of driver num to Report, this is the root struct that unmarshalls all but the first line
 type Lap struct {
-	Drivers  map[string]LapReport `json:"Lines"`
-	Withheld bool                 `json:"Withheld"`
+	Drivers  map[string]Report `json:"Lines"`
+	Withheld bool              `json:"Withheld"`
 }
 
 // InitialLap contains the map of driver num to InitialLapReport, this is the root struct that unmarshalls the first line
@@ -16,7 +16,7 @@ type InitialLap struct {
 	Withheld bool                        `json:"Withheld"`
 }
 
-// CommonLapReport contains struct fields that are in both InitialLapReport and LapReport
+// CommonLapReport contains struct fields that are in both InitialLapReport and Report
 type CommonLapReport struct {
 	GapToLeader             string   `json:"GapToLeader"`
 	IntervalToPositionAhead Interval `json:"IntervalToPositionAhead"`
@@ -27,8 +27,8 @@ type CommonLapReport struct {
 	PitOut                  bool     `json:"PitOut"`
 	Stopped                 bool     `json:"Stopped"`
 	Speeds                  Speeds   `json:"Speeds"`
-	BestLapTime             LapTime  `json:"BestLapTime"`
-	LastLapTime             LapTime  `json:"LastLapTime"`
+	BestLapTime             Time     `json:"BestLapTime"`
+	LastLapTime             Time     `json:"LastLapTime"`
 }
 
 // InitialLapReport gives the complete information on the initial dump of every driver's starter lap.
@@ -37,8 +37,8 @@ type InitialLapReport struct {
 	Sectors []Sector `json:"Sectors"`
 }
 
-// LapReport gives the complete information of a driver's lap
-type LapReport struct {
+// Report gives the complete information of a driver's lap
+type Report struct {
 	CommonLapReport
 	Sectors map[string]Sector `json:"Sectors"`
 }
@@ -71,20 +71,20 @@ type Speeds struct {
 	ST Speed `json:"ST"`
 }
 
-// LapTime gives the information about a drivers lap time
-type LapTime struct {
+// Time gives the information about a drivers lap time
+type Time struct {
 	Value           string `json:"Value"`
 	OverallFastest  bool   `json:"OverallFastest,omitempty"`
 	PersonalFastest bool   `json:"PersonalFastest,omitempty"`
 }
 
-func (i InitialLap) toLine() *Lap {
+func (i InitialLap) ToLap() *Lap {
 	line := new(Lap)
 	line.Withheld = i.Withheld
-	line.Drivers = make(map[string]LapReport)
+	line.Drivers = make(map[string]Report)
 
 	for driver, initialReport := range i.Lines {
-		report := LapReport{
+		report := Report{
 			CommonLapReport: initialReport.CommonLapReport,
 			Sectors:         make(map[string]Sector),
 		}
@@ -97,18 +97,18 @@ func (i InitialLap) toLine() *Lap {
 	return line
 }
 
-func (lr LapReport) isFull() bool {
+func (lr Report) isFull() bool {
 	return lr.RacingNumber != "" &&
 		lr.Position != "" &&
 		lr.GapToLeader != "" &&
 		lr.IntervalToPositionAhead.Value != "" &&
 		lr.Speeds.ST.Value != "" &&
 		lr.Speeds.FL.Value != "" &&
-		lr.BestLapTime != LapTime{} &&
-		lr.LastLapTime != LapTime{}
+		lr.BestLapTime != Time{} &&
+		lr.LastLapTime != Time{}
 }
 
-func combine(initial, base, new LapReport) (LapReport, bool) {
+func Combine(initial, base, new Report) (Report, bool) {
 	// make a local copy of base to avoid overwriting
 	updated := base
 
@@ -164,7 +164,7 @@ func combine(initial, base, new LapReport) (LapReport, bool) {
 	return updated, len(updated.Sectors) == 3
 }
 
-func fillBack(lap LapReport, rawLaps []Lap, lapNdx int, driverNum string) LapReport {
+func FillBack(lap Report, rawLaps []Lap, lapNdx int, driverNum string) Report {
 	for i := lapNdx; i >= 0; i-- {
 		if lap.isFull() {
 			return lap

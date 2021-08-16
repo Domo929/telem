@@ -1,23 +1,25 @@
 package telemetry
 
-func aggregate(laps []Lap) ([]Lap, error) {
+import "github.com/Domo929/telem.git/internal/lap"
+
+func aggregate(laps []lap.Lap) ([]lap.Lap, error) {
 	lapCount := make(map[string]int)
 	for driver := range laps[0].Drivers {
 		lapCount[driver] = 1
 	}
 
 	// preallocate 100 laps for speed
-	aggregatedLaps := make([]Lap, 100, len(laps))
+	aggregatedLaps := make([]lap.Lap, 100, len(laps))
 	aggregatedLaps[0] = laps[0]
 
-	for lapNdx, lap := range laps {
-		for driverNum, lapReport := range lap.Drivers {
+	for lapNdx, rawLap := range laps {
+		for driverNum, lapReport := range rawLap.Drivers {
 			driverLap := lapCount[driverNum]
 			if aggregatedLaps[driverLap].Drivers == nil {
-				aggregatedLaps[driverLap].Drivers = make(map[string]LapReport)
+				aggregatedLaps[driverLap].Drivers = make(map[string]lap.Report)
 			}
 
-			updatedLap, lapDone := combine(
+			updatedLap, lapDone := lap.Combine(
 				aggregatedLaps[0].Drivers[driverNum],
 				aggregatedLaps[driverLap].Drivers[driverNum],
 				lapReport)
@@ -25,7 +27,7 @@ func aggregate(laps []Lap) ([]Lap, error) {
 			aggregatedLaps[driverLap].Drivers[driverNum] = updatedLap
 
 			if lapDone {
-				updatedLap = fillBack(updatedLap, laps, lapNdx, driverNum)
+				updatedLap = lap.FillBack(updatedLap, laps, lapNdx, driverNum)
 				aggregatedLaps[driverLap].Drivers[driverNum] = updatedLap
 
 				lapCount[driverNum] += 1
@@ -42,11 +44,11 @@ func aggregate(laps []Lap) ([]Lap, error) {
 		}
 	}
 
-	// fill missing data from last lap
+	// fill missing data from last rawLap
 	aggregatedLapsLastLapNdx := len(aggregatedLaps) - 1
 	rawLapsLastLapNdx := len(laps) - 1
 	for driverNum, lapReport := range aggregatedLaps[aggregatedLapsLastLapNdx].Drivers {
-		updatedLap := fillBack(lapReport, laps, rawLapsLastLapNdx, driverNum)
+		updatedLap := lap.FillBack(lapReport, laps, rawLapsLastLapNdx, driverNum)
 		aggregatedLaps[aggregatedLapsLastLapNdx].Drivers[driverNum] = updatedLap
 	}
 

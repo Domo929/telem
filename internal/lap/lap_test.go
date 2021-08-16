@@ -1,4 +1,4 @@
-package telemetry
+package lap
 
 import (
 	"testing"
@@ -8,14 +8,14 @@ import (
 
 func TestLapReport_Combine(t *testing.T) {
 	var (
-		initial = LapReport{
+		initial = Report{
 			CommonLapReport: CommonLapReport{
 				Position:     "1",
 				RacingNumber: "77",
 			},
 		}
-		empty = LapReport{}
-		full  = LapReport{
+		empty = Report{}
+		full  = Report{
 			CommonLapReport: CommonLapReport{
 				GapToLeader: "+1.1",
 				IntervalToPositionAhead: Interval{
@@ -40,12 +40,12 @@ func TestLapReport_Combine(t *testing.T) {
 						PersonalFastest: true,
 					},
 				},
-				BestLapTime: LapTime{
+				BestLapTime: Time{
 					Value:           "1:23.00",
 					OverallFastest:  true,
 					PersonalFastest: true,
 				},
-				LastLapTime: LapTime{
+				LastLapTime: Time{
 					Value:           "1:25.00",
 					OverallFastest:  true,
 					PersonalFastest: true,
@@ -76,10 +76,10 @@ func TestLapReport_Combine(t *testing.T) {
 
 	testTable := []struct {
 		name            string
-		initial         LapReport
-		base            LapReport
-		new             LapReport
-		expectedUpdated LapReport
+		initial         Report
+		base            Report
+		new             Report
+		expectedUpdated Report
 		expectedDone    bool
 	}{
 		{

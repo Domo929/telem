@@ -6,19 +6,28 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Domo929/telem.git/internal/cache"
+
 	"github.com/Domo929/telem.git/internal/handlers"
 	"github.com/Domo929/telem.git/internal/livetiming"
 	"github.com/gorilla/mux"
 )
 
 var (
-	addr = flag.String("addr", "0.0.0.0:8080", "the local address of the daemon")
+	addr      = flag.String("addr", "0.0.0.0:8080", "the local address of the daemon")
+	cachePath = flag.String("cache", "cache", "the path to the folder to use for a cache path")
 )
 
 func main() {
 	flag.Parse()
 
-	if err := livetiming.Init(); err != nil {
+	localCache, err := cache.New(*cachePath)
+	if err != nil {
+		log.Fatalln("error setting up local cache : ", err)
+	}
+	cache.SetLocal(localCache)
+
+	if err = livetiming.Init(); err != nil {
 		log.Fatalln("error starting live timing :", err)
 	}
 
@@ -31,7 +40,7 @@ func main() {
 		WriteTimeout: 30 * time.Second,
 	}
 
-	if err := srv.ListenAndServe(); err != nil {
+	if err = srv.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
 }

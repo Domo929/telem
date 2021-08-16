@@ -6,12 +6,14 @@ import (
 	"errors"
 	"io"
 	"strings"
+
+	"github.com/Domo929/telem.git/internal/lap"
 )
 
-func parse(r io.Reader) ([]Lap, error) {
+func parse(r io.Reader) ([]lap.Lap, error) {
 	scanner := bufio.NewScanner(r)
 
-	lines := make([]Lap, 0, 10_000)
+	lines := make([]lap.Lap, 0, 10_000)
 
 	for scanner.Scan() {
 		text := scanner.Text()
@@ -36,15 +38,15 @@ func parse(r io.Reader) ([]Lap, error) {
 	return lines, nil
 }
 
-func lineUnmarshall(b []byte) (*Lap, error) {
-	line := new(Lap)
-	if err := json.Unmarshal(b, line); err == nil {
-		return line, nil
+func lineUnmarshall(b []byte) (*lap.Lap, error) {
+	fullLap := new(lap.Lap)
+	if err := json.Unmarshal(b, fullLap); err == nil {
+		return fullLap, nil
 	}
 
-	initialLine := new(InitialLap)
-	if err := json.Unmarshal(b, initialLine); err == nil {
-		return initialLine.toLine(), nil
+	initialLap := new(lap.InitialLap)
+	if err := json.Unmarshal(b, initialLap); err == nil {
+		return initialLap.ToLap(), nil
 	}
 
 	return nil, errors.New("could not unmarshal json into Lap or InitialLap")

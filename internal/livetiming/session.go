@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -20,7 +21,8 @@ type Session struct {
 }
 
 func (s *Session) String() string {
-	return fmt.Sprintf("%d_%d_%s", s.Season, s.Round, s.Name)
+	name := strings.ReplaceAll(s.Name, " ", "_")
+	return fmt.Sprintf("%d_%d_%s", s.Season, s.Round, name)
 }
 
 func (s *Session) UnmarshalJSON(b []byte) error {
