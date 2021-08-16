@@ -15,20 +15,30 @@ import (
 
 var (
 	addr      = flag.String("addr", "0.0.0.0:8080", "the local address of the daemon")
+	memCache  = flag.Bool("memCache", false, "whether to cache races in memory vs on disk")
 	cachePath = flag.String("cache", "cache", "the path to the folder to use for a cache path")
 )
 
 func main() {
 	flag.Parse()
 
-	localCache, err := cache.New(*cachePath)
-	if err != nil {
-		log.Fatalln("error setting up local cache : ", err)
+	var (
+		c   cache.Cache
+		err error
+	)
+
+	if *memCache {
+		c = cache.NewMemoryCache()
+	} else {
+		c, err = cache.NewFileCache(*cachePath)
 	}
-	cache.SetLocal(localCache)
+	if err != nil {
+		log.Fatalln("issue setting up cache: ", err)
+	}
+	cache.SetCache(c)
 
 	if err = livetiming.Init(); err != nil {
-		log.Fatalln("error starting live timing :", err)
+		log.Fatalln("error starting live timing: ", err)
 	}
 
 	r := router()

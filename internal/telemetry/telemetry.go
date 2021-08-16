@@ -12,9 +12,9 @@ import (
 
 // Load returns the aggregated information for the race
 func Load(sess *livetiming.Session) ([]lap.Lap, error) {
-	if cache.Local.Check(sess) {
+	if cache.Current.Check(sess) {
 		log.Printf("Loaded %s from local cache", sess.String())
-		return cache.Local.Load(sess)
+		return cache.Current.Load(sess)
 	}
 	laps, err := loadFromWeb(sess)
 	if err != nil {
@@ -23,7 +23,7 @@ func Load(sess *livetiming.Session) ([]lap.Lap, error) {
 
 	log.Printf("Loaded %s from web", sess.String())
 
-	if err := cache.Local.Save(sess, laps); err != nil {
+	if err := cache.Current.Save(sess, laps); err != nil {
 		return nil, err
 	}
 
