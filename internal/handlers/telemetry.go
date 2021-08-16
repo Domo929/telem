@@ -13,6 +13,7 @@ import (
 // SessionTelemetry is the handler that returns the formatted/aggregated data for the race
 func SessionTelemetry(w http.ResponseWriter, r *http.Request) {
 	vals := mux.Vars(r)
+	w.Header().Set("Content-Type", "application/json")
 
 	year, round, err := parseSessionInfo(vals)
 	if err != nil {
@@ -48,6 +49,4 @@ func SessionTelemetry(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
-	w.WriteHeader(http.StatusOK)
 }

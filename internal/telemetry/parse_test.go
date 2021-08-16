@@ -1,6 +1,7 @@
 package telemetry
 
 import (
+	"compress/gzip"
 	"os"
 	"testing"
 
@@ -9,12 +10,15 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	f, err := os.Open("../../test/jsonStream.txt")
+	f, err := os.Open("../../test/jsonStream.txt.gz")
 	require.NoError(t, err)
 
 	defer f.Close()
 
-	lines, err := parse(f)
+	r, err := gzip.NewReader(f)
+	require.NoError(t, err)
+
+	lines, err := parse(r)
 	require.NoError(t, err)
 
 	assert.Len(t, lines, 16)

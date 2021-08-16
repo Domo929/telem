@@ -2,39 +2,16 @@ package telemetry
 
 import (
 	"bufio"
-	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"strings"
-
-	"github.com/Domo929/telem.git/internal/livetiming"
 )
 
-// Load returns the aggregated information for the race
-func Load(sess *livetiming.Session) ([]Line, error) {
-	lines, err := loadFromWeb(sess)
-	if err != nil {
-		return nil, err
-	}
-
-	return lines, nil
-}
-
-func loadFromWeb(sess *livetiming.Session) ([]Line, error) {
-	r, err := livetiming.GetData(context.Background(), sess)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Close()
-
-	return parse(r)
-}
-
-func parse(r io.Reader) ([]Line, error) {
+func parse(r io.Reader) ([]Lap, error) {
 	scanner := bufio.NewScanner(r)
 
-	lines := make([]Line, 0, 10_000)
+	lines := make([]Lap, 0, 10_000)
 
 	for scanner.Scan() {
 		text := scanner.Text()
@@ -59,16 +36,16 @@ func parse(r io.Reader) ([]Line, error) {
 	return lines, nil
 }
 
-func lineUnmarshall(b []byte) (*Line, error) {
-	line := new(Line)
+func lineUnmarshall(b []byte) (*Lap, error) {
+	line := new(Lap)
 	if err := json.Unmarshal(b, line); err == nil {
 		return line, nil
 	}
 
-	initialLine := new(InitialLine)
+	initialLine := new(InitialLap)
 	if err := json.Unmarshal(b, initialLine); err == nil {
-		return initialLine.ConvertToLine(), nil
+		return initialLine.toLine(), nil
 	}
 
-	return nil, errors.New("could not unmarshal json into Line or InitialLine")
+	return nil, errors.New("could not unmarshal json into Lap or InitialLap")
 }
