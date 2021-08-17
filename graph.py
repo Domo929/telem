@@ -16,7 +16,7 @@ for lap in laps[1:]:
         ham_speeds.append(int(ham_speed))
         ver_speeds.append(int(ver_speed))
 
-lap_numbers = range(1, 47)
+lap_numbers = range(1, len(ham_speeds))
 
 fig, ax = plt.subplots()
 ax.plot(lap_numbers, ver_speeds, color='blue')
